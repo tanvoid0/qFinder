@@ -111,7 +111,6 @@ public class QrScanActivity extends AppCompatActivity implements ZXingScannerVie
         Intent intent = new Intent(getBaseContext(), BioActivity.class);
         intent.putExtra("JSON_DATA", scanResult);
         startActivity(intent);
-        QrScanActivity.this.finish();
 //        MainActivity.this.finish();
 //        startActivity(new Intent(MainActivity.this, BioActivity.class));
 
@@ -135,3 +134,36 @@ public class QrScanActivity extends AppCompatActivity implements ZXingScannerVie
 //        alert.show();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".QrGenActivity">
+
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></WebView>
+</RelativeLayout>

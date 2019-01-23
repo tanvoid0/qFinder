@@ -5,6 +5,8 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.nfc.Tag;
 import android.os.Build;
@@ -12,9 +14,11 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +38,7 @@ import java.util.List;
 public class BioActivity extends AppCompatActivity {
     JsonObject jsonObject;
     String jsonString;
+    ImageView qrImage;
     TextView name;
     TextView organization;
     TextView phone_view;
@@ -75,6 +80,19 @@ public class BioActivity extends AppCompatActivity {
 //        jsonString = "{'name': 'Tanveer', 'organization': 'org', 'phone': '0100', 'email': 'thaque20@gmail.com', 'address': '2302', 'facebook': 'thaque20'}";
 
 
+//        String img = jsonObject.get("image").getAsString();
+//        Bitmap bitmap;
+//        try{
+//            byte [] encodeByte=Base64.decode(img,Base64.DEFAULT);
+//            bitmap=BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+//            qrImage.setImageBitmap(bitmap);
+//
+//        }catch(Exception e){
+//            e.getMessage();
+//        }
+//        Toast.makeText(this, img, Toast.LENGTH_SHORT).show();
+//        byte[] decodedString = Base64.decode(img, Base64.URL_SAFE );
+//        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
         name.setText(jsonObject.get("name").getAsString());
         organization.setText(jsonObject.get("organization").getAsString());
@@ -107,6 +125,7 @@ public class BioActivity extends AppCompatActivity {
 //    }
 
     public void initGui() {
+        qrImage = (ImageView) findViewById(R.id.qrImage);
         name = (TextView) findViewById(R.id.name);
 
         phone = (LinearLayout) findViewById(R.id.phone);

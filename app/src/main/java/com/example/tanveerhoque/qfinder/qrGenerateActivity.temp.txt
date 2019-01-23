@@ -1,0 +1,160 @@
+package com.example.tanveerhoque.qfinder;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Display;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.google.zxing.WriterException;
+
+import java.io.File;
+import java.io.FileOutputStream;
+
+import androidmads.library.qrgenearator.QRGContents;
+import androidmads.library.qrgenearator.QRGEncoder;
+import androidmads.library.qrgenearator.QRGSaver;
+import lib.folderpicker.FolderPicker;
+
+import static com.google.gson.internal.$Gson$Types.arrayOf;
+
+public class qrGenerateActivity extends AppCompatActivity {
+    String TAG = "GenerateQRCode";
+    EditText edtValue;
+    ImageView qrImage;
+    Button exit, save;
+    String inputValue;
+    String savePath = Environment.getExternalStorageDirectory().getPath() + "/QRCode/";
+    Bitmap bitmap;
+    QRGEncoder qrgEncoder;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_qr_generate);
+        inputValue = getIntent().getStringExtra("JSON_DATA");
+        qrImage = (ImageView) findViewById(R.id.QR_Image);
+        exit = (Button) findViewById(R.id.exit);
+        save = (Button) findViewById(R.id.save);
+
+        if (inputValue.length() > 0) {
+            WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
+            Display display = manager.getDefaultDisplay();
+            Point point = new Point();
+            display.getSize(point);
+            int width = point.x;
+            int height = point.y;
+            int smallerDimension = width < height ? width : height;
+            smallerDimension = smallerDimension * 3 / 4;
+
+            qrgEncoder = new QRGEncoder(
+                    inputValue, null,
+                    QRGContents.Type.TEXT,
+                    smallerDimension);
+            try {
+                bitmap = qrgEncoder.encodeAsBitmap();
+                qrImage.setImageBitmap(bitmap);
+            } catch (WriterException e) {
+                Log.v(TAG, e.toString());
+            }
+        } else {
+            edtValue.setError("Required");
+        }
+
+        exit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(qrGenerateActivity.this, QrGenActivity.class));
+            }
+        });
+
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                qrImage.invalidate();
+                BitmapDrawable drawable = (BitmapDrawable) qrImage.getDrawable();
+                Bitmap bitmap = drawable.getBitmap();
+                Toast.makeText(qrGenerateActivity.this, bitmap.toString(), Toast.LENGTH_SHORT).show();
+
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (ContextCompat.checkSelfPermission(qrGenerateActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                            try {
+//                                if (requestCode == FOLDERPICKER_CODE && resultCode == Activity.RESULT_OK) {
+                                Intent intent = new Intent(qrGenerateActivity.this, FolderPicker.class);
+                                startActivityForResult(intent, 2);
+                                    savePath = intent.getExtras().getString("data");
+
+//                                boolean save = QRGSaver.save(savePath, "qrcode", bitmap, QRGContents.ImageType.IMAGE_PNG);
+//                                String result = save ? "Image Saved" : "Image Not Saved";
+                                Toast.makeText(getApplicationContext(), savePath, Toast.LENGTH_LONG).show();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            // Camera permission not granted
+                            ActivityCompat.requestPermissions(qrGenerateActivity.this,
+                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    1);
+//                            Toast.makeText(qrGenerateActivity.this, "Permission granted.", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+//
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Not Working", Toast.LENGTH_LONG).show();
+
+                }
+            }
+        });
+
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(qrGenerateActivity.this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
+
+}
